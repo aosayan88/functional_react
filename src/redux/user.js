@@ -9,7 +9,7 @@ let users_initial_data = [
     { id: 6, designated_table: 1, first_name: "Test3", last_name: "Test3", email: "mchoi@village88.com"}
 ]
 
-let user_initial_value = { 
+let form_initial_value = { 
     id: users_initial_data.length + 1,
     designated_table: 0,
     first_name: "",
@@ -20,7 +20,7 @@ let user_initial_value = {
 export const userSlice = createSlice({
     name: "user",
     initialState: { 
-        form: user_initial_value,
+        form: form_initial_value,
         users_data: users_initial_data
     },
     reducers: {
