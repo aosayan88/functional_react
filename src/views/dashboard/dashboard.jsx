@@ -49,26 +49,30 @@ const Dashboard = () => {
 
         if(current_id) {
             updateUserData();
+            clearForm();
         }
         else {
-            addUserData(); 
+            addUserData();
+            clearForm();
         }
-
-        // /* check if all the input fields are valid */
-        // if (this.state.is_input_valid) {
-        //     /* if the form is in updating state, will update the table, else add data from the form */
-        //     if (this.state.is_edit) {
-        //         this.updateUserData(first_name, last_name, email)
-        //     }
-        //     else {
-        //         this.addUserData(first_name, last_name, email); 
-        //     }
-        // }
-        // else {
-        //     window.alert("Invalid Input/s");
-        // }
-        // this.handleResetForm();
     }
+
+    /**
+        * DOCU: This function will reset the form in default
+        * Last Updated Date: Oct. 19, 2022
+        * @function
+        * @author Alfie
+    */
+    const clearForm = () => {
+        setCurrent_id(0);
+        setForm_data({
+            id: users_data.length + 1,
+            designated_table: 0,
+            first_name: "",
+            last_name: "",
+            email: ""
+        })
+      }
 
     /**
         * DOCU: This function will handle changes in form inputs
@@ -111,7 +115,7 @@ const Dashboard = () => {
         * @author Alfie
     */
     const updateUserData = () => {
-        
+
         /* Will loop to check if the user data is in the table data */
         let new_data = users_data.map(row_data => {
             /*  will update if user data id matches in the row data id */
