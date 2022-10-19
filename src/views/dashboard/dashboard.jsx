@@ -3,7 +3,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 
 /* REDUX */
-import { addUser, updateUser } from '../../redux/user';
+import { addUser, updateUser, deleteUser } from '../../redux/user';
 
 /* COMPONENTS */
 import Form from './components/form/Form';
@@ -14,15 +14,16 @@ import "./dashboard.scss";
 
 const Dashboard = () => {
     const dispatch = useDispatch();
+    const users_data = useSelector((state) => state.user.users_data)
 
-    const [users_data, setUsers_data] = useState([
-        { id: 1, designated_table: 0, first_name: "Alfie", last_name: "Osayan", email: "aosayan@village88.com"},
-        { id: 2, designated_table: 0, first_name: "Ruel", last_name: "Ytac", email: "ruel.ytac@village88.com"},
-        { id: 3, designated_table: 0, first_name: "Michael", last_name: "Choi", email: "mchoi@village88.com" },
-        { id: 4, designated_table: 1, first_name: "Test1", last_name: "Test1", email: "aosayan@village88.com"},
-        { id: 5, designated_table: 1, first_name: "Test2", last_name: "Test2", email: "ruel.ytac@village88.com"},
-        { id: 6, designated_table: 1, first_name: "Test3", last_name: "Test3", email: "mchoi@village88.com"}
-    ]);
+    // const [users_data, setUsers_data] = useState([
+    //     { id: 1, designated_table: 0, first_name: "Alfie", last_name: "Osayan", email: "aosayan@village88.com"},
+    //     { id: 2, designated_table: 0, first_name: "Ruel", last_name: "Ytac", email: "ruel.ytac@village88.com"},
+    //     { id: 3, designated_table: 0, first_name: "Michael", last_name: "Choi", email: "mchoi@village88.com" },
+    //     { id: 4, designated_table: 1, first_name: "Test1", last_name: "Test1", email: "aosayan@village88.com"},
+    //     { id: 5, designated_table: 1, first_name: "Test2", last_name: "Test2", email: "ruel.ytac@village88.com"},
+    //     { id: 6, designated_table: 1, first_name: "Test3", last_name: "Test3", email: "mchoi@village88.com"}
+    // ]);
 
     const [form_data, setForm_data] = useState({
         id: users_data.length + 1,
@@ -35,8 +36,8 @@ const Dashboard = () => {
     const [current_id, setCurrent_id] = useState(null);
 
     useEffect(() => {
-        if (form_data) setForm_data(form_data);
-    }, [form_data])
+        console.log(users_data)
+    }, [users_data])
 
     /*
     * DOCU: This function will submit the form data to the table
@@ -48,11 +49,11 @@ const Dashboard = () => {
         event.preventDefault();
 
         if(current_id) {
-            updateUserData();
+            dispatch(updateUser(form_data));
             clearForm();
         }
         else {
-            addUserData();
+            dispatch(addUser(form_data));
             clearForm();
         }
     }
@@ -93,43 +94,8 @@ const Dashboard = () => {
         //this.validateSimpleFormInputs();
     }
 
-    /**
-        * DOCU: This function adds the user to the data table
-        * Last Updated Date: Oct. 19, 2022
-        * @function
-        * @author Alfie
-    */
-    const addUserData = () => {
-        let { first_name, last_name, email } = form_data;
-        let id = users_data.length + 1;
-        let designated_table = 0; /* 0 for upper table, 1 for lower table */
-
-        setUsers_data(prev_users_data => {
-            return [...prev_users_data, form_data]
-        });
-    }
-
-    /**
-        * DOCU: This function updates the table data
-        * Last Updated Date: Oct. 19, 2022
-        * @author Alfie
-    */
-    const updateUserData = () => {
-
-        /* Will loop to check if the user data is in the table data */
-        let new_data = users_data.map(row_data => {
-            /*  will update if user data id matches in the row data id */
-            if (row_data.id === current_id) {
-                return { ...form_data };
-            }
-
-            return row_data;
-        });
-
-        setUsers_data(new_data);
-    }
-
-    const onMove = () => {
+    const onMove = (event) => {
+        event.stopPropagation();
         console.log('On Move');
     }
 
@@ -141,11 +107,10 @@ const Dashboard = () => {
     */
     const handleDeleteRowData = (event, id) => {
         event.stopPropagation();
-
         /* if the user clicks the confirm button, will delete the data to the table */
         if (window.confirm("Are you sure you want to delete?")) {
-            const newdata = users_data.filter(user => user.id !== id);
-            setUsers_data(newdata);
+            deleteUser(id);
+            console.log(id)
         }
     }
 

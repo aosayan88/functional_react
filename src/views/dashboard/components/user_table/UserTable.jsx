@@ -38,7 +38,7 @@ const UserTable = ({ users_data, onEdit, onMove, onDelete }) => {
                             <td>{email}</td>
                             <td>
                                 <button onClick={(event) => onEdit(event, id)} id="edit_data_btn" type="button"><span>Edit</span></button>
-                                <button onClick={() => onMove(id, designated_table)} type="button"><span className={arrow_icon}></span></button>
+                                <button onClick={(event) => onMove(event, id, designated_table)} type="button"><span className={arrow_icon}></span></button>
                                 <button onClick={(event) => onDelete(event, id)} id="delete_data_btn" type="button"><span className="delete_icon"></span></button>
                             </td>
                         </tr>
