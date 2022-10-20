@@ -3,7 +3,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 
 /* REDUX */
-import { addUser, updateUser, deleteUser } from '../../redux/user';
+import { addUser, updateUser, deleteUser, moveUser } from '../../redux/user';
 
 /* COMPONENTS */
 import Form from './components/form/Form';
@@ -12,20 +12,14 @@ import UserTable from './components/user_table/UserTable';
 /* CSS */
 import "./dashboard.scss";
 
+/* CONSTANTS */
+import { UserTableType } from "../../config/constants";
+
 const Dashboard = () => {
     const dispatch = useDispatch();
     const users_data = useSelector((state) => state.user.users_data)
 
-    // const [users_data, setUsers_data] = useState([
-    //     { id: 1, designated_table: 0, first_name: "Alfie", last_name: "Osayan", email: "aosayan@village88.com"},
-    //     { id: 2, designated_table: 0, first_name: "Ruel", last_name: "Ytac", email: "ruel.ytac@village88.com"},
-    //     { id: 3, designated_table: 0, first_name: "Michael", last_name: "Choi", email: "mchoi@village88.com" },
-    //     { id: 4, designated_table: 1, first_name: "Test1", last_name: "Test1", email: "aosayan@village88.com"},
-    //     { id: 5, designated_table: 1, first_name: "Test2", last_name: "Test2", email: "ruel.ytac@village88.com"},
-    //     { id: 6, designated_table: 1, first_name: "Test3", last_name: "Test3", email: "mchoi@village88.com"}
-    // ]);
-
-    const [form_data, setForm_data] = useState({
+    const [user_form_data, setUserFormData] = useState({
         id: users_data.length + 1,
         designated_table: 0,
         first_name: "",
@@ -33,27 +27,22 @@ const Dashboard = () => {
         email: ""
     });
 
-    const [current_id, setCurrent_id] = useState(null);
-
-    useEffect(() => {
-        console.log(users_data)
-    }, [users_data])
-
+    const [current_user_id, setCurrentUserId] = useState(null);
     /*
     * DOCU: This function will submit the form data to the table
     * Last Updated Date: July 28, 2022
     * @function
     * @author Alfie Osayan
     */
-    const handleSubmitForm = (event) => {
+    const handleSubmitUserForm = (event) => {
         event.preventDefault();
 
-        if(current_id) {
-            dispatch(updateUser(form_data));
+        if(current_user_id) {
+            dispatch(updateUser(user_form_data));
             clearForm();
         }
         else {
-            dispatch(addUser(form_data));
+            dispatch(addUser(user_form_data));
             clearForm();
         }
     }
@@ -65,8 +54,8 @@ const Dashboard = () => {
         * @author Alfie
     */
     const clearForm = () => {
-        setCurrent_id(0);
-        setForm_data({
+        setCurrentUserId(0);
+        setUserFormData({
             id: users_data.length + 1,
             designated_table: 0,
             first_name: "",
@@ -86,31 +75,35 @@ const Dashboard = () => {
 
         let field_value = event.target.value;
 
-        setForm_data({
-            ...form_data,
+        setUserFormData({
+            ...user_form_data,
             [event.target.name]: field_value
         });
-
-        //this.validateSimpleFormInputs();
     }
 
-    const onMove = (event) => {
+    /**
+        * DOCU: This function will move the data to upper or lower table
+        * Last Updated Date: Oct. 20, 2022
+        * @function
+        * @author Alfie
+    */
+    const handleMoveUser = (event, id) => {
         event.stopPropagation();
-        console.log('On Move');
+        
+        dispatch(moveUser(id));
     }
 
     /**
         * DOCU: This function will delete the specific row in the table
-        * Last Updated Date: Oct. 19, 2022
+        * Last Updated Date: Oct. 20, 2022
         * @function
         * @author Alfie
     */
-    const handleDeleteRowData = (event, id) => {
+    const handleDeleteUserData = (event, id) => {
         event.stopPropagation();
         /* if the user clicks the confirm button, will delete the data to the table */
         if (window.confirm("Are you sure you want to delete?")) {
-            deleteUser(id);
-            console.log(id)
+            dispatch(deleteUser(id));
         }
     }
 
@@ -118,17 +111,19 @@ const Dashboard = () => {
         * DOCU: This function will set the form in updating state
         * Last Updated Date: Oct. 19, 2022
         * @function
+        * @params {object} current_user_id - Requires to determine the current user id that is on edit state.
         * @author Alfie
     */
-    const onEdit = (event, current_id) => {
+    const handleEditUserData = (event, current_user_id) => {
         event.stopPropagation();
 
-        setCurrent_id(current_id);
-        let current_user_data = users_data.filter(row_data => row_data.id === current_id);
+        setCurrentUserId(current_user_id);
+
+        let current_user_data = users_data.filter(row_data => row_data.id === current_user_id);
 
         let { id, designated_table, first_name, last_name, email } = current_user_data[0];
 
-        setForm_data({
+        setUserFormData({
             id,
             designated_table,
             first_name,
@@ -138,26 +133,28 @@ const Dashboard = () => {
     }
 
     /**
-        * DOCU: This function checks if a string has white spaces
-        * Last Updated Date: Oct. 19, 2022
+        * DOCU: This function will render the user table data
+        * Last Updated Date: Oct. 20, 2022
         * @function
+        * @params {object} user_table_type - Requires to determine the table type.
+        * current_user_id
         * @author Alfie
     */
-    const hasNoWhiteSpace = (string) => {
-        return string.trim().length !== 0;
+    const renderUserTable = (user_table_type, user_designated_table) => {
+        return (
+            <div id={ user_table_type }>
+                <UserTable users_data={users_data.filter(row_data => row_data.designated_table === user_designated_table)} onMove={handleMoveUser} onDelete={handleDeleteUserData} onEdit={handleEditUserData} />
+           </div>
+        )
     }
 
     return (
         <Fragment>
             <div className="form">
-                <Form onSubmit={handleSubmitForm} form_data={form_data} onChange={handleInputChange} current_id={current_id}/>
+                <Form onSubmit={handleSubmitUserForm} form_data={user_form_data} onChange={handleInputChange} current_id={current_user_id}/>
             </div>
-            <div id="upper_table">
-                <UserTable users_data={users_data.filter(row_data => row_data.designated_table === 0)} onMove={onMove} onDelete={handleDeleteRowData} onEdit={onEdit} />
-            </div>
-            <div id="lower_table">
-                <UserTable users_data={users_data.filter(row_data => row_data.designated_table === 1)} onMove={onMove} onDelete={handleDeleteRowData} onEdit={onEdit} />
-            </div>
+            {renderUserTable("upper_table", UserTableType.IS_UPPER_TABLE)};
+            {renderUserTable("lower_table", UserTableType.IS_LOWER_TABLE)};
         </Fragment>
     )
 }

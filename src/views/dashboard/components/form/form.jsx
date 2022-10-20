@@ -2,6 +2,9 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
 
+/* COMPONENTS */
+
+
 /**
  * This component class is being called on the dashboard.js
  * @author Alfie
@@ -9,6 +12,12 @@ import { useForm } from "react-hook-form";
  */
 const Form = ({ onSubmit, onChange, form_data, current_id }) => {
     //const { register, handleSubmit } = useForm();
+
+    const modules = {
+        toolbar: [
+            // options here
+        ]
+    }
 
     return (
         <form id="simple_form" onSubmit={onSubmit}>

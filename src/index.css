@@ -4,6 +4,12 @@
   padding: 0;
 }
 
+a {
+  text-decoration: none;
+  background-color: transparent;
+  color: #0066FF;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   height: 100vh;
